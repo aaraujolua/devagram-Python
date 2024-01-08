@@ -7,7 +7,7 @@ class UserModel(BaseModel):
     icon: str = Field(...)
     
     
-class Sett:
+class Config:
     extra_schema = {
         "user": {
                 "name": "Luana",
