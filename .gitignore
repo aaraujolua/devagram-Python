@@ -2896,3 +2896,12 @@ venv/Lib/site-packages/pymongo/topology_description.py
 venv/Lib/site-packages/pymongo/typings.py
 venv/Lib/site-packages/pymongo/uri_parser.py
 venv/Lib/site-packages/pymongo/write_concern.py
+venv/Lib/site-packages/__pycache__/decouple.cpython-38.pyc
+venv/Lib/site-packages/decouple.py
+venv/Lib/site-packages/python_decouple-3.8.dist-info/INSTALLER
+venv/Lib/site-packages/python_decouple-3.8.dist-info/LICENSE
+venv/Lib/site-packages/python_decouple-3.8.dist-info/METADATA
+venv/Lib/site-packages/python_decouple-3.8.dist-info/RECORD
+venv/Lib/site-packages/python_decouple-3.8.dist-info/REQUESTED
+venv/Lib/site-packages/python_decouple-3.8.dist-info/top_level.txt
+venv/Lib/site-packages/python_decouple-3.8.dist-info/WHEEL
