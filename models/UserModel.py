@@ -17,4 +17,3 @@ class Config:
         }
     }
     
-    #oq ssignifica fieles no codigo?
