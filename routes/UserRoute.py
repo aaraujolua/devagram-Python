@@ -8,6 +8,4 @@ router = APIRouter()
 async def route_create_new_user(user: UserModel = Body(...)):
     result = await create_user(user)
     
-    return {
-        "msg": "User sucessfully registered!"
-    }, result
+    return {"msg": "User sucessfully registered!"}, result
