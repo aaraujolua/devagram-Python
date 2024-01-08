@@ -1,6 +1,7 @@
-import motor.motor_asyncio
 from models.UserModel import UserModel
 from decouple import config
+import motor.motor_asyncio
+from bson import ObjectId
 
 MONGODB_URL = config("MONGODB_URL")
 
@@ -10,17 +11,48 @@ database = client.devagram
 
 user_collection = database.get_collection("user")
 
+def show_user_data(user):
+     return {
+        "id": str(user["_id"]),
+        "name": user['name'],
+        "email": user['email'] ,
+        "password": user['password'],
+        "icon": user['icon'],
+    }
+
 
 async def create_user(user: UserModel) -> dict: 
     created_user = await user_collection.insert_one(user.__dict__)
     
     new_user = await user_collection.find_one({"_id": created_user.inserted_id})
     
-    return {
-        "name": new_user['name'],
-        "email": new_user['email'],
-        "password": new_user['password'],
-        "icon": new_user['icon'],
-    }
+    return show_user_data(new_user)
+    
+    
+async def list_users():
+    return user_collection.find()
+    
+    
+async def find_user_by_email(email: str) -> dict:
+    user = await user_collection.find_one({"email": email})
+    
+    if user:
+        return show_user_data(user)
+    
+
+async def update_user(id: str, user_data: dict):
+    user = await user_collection.find_one({"_id": ObjectId(id)})
+    
+    if user:
+        updated_user = await user_collection.update_one({"_id": ObjectId(id)}, {"$set"})
+
+        return {"msg": "User sucessfully updated!"}, show_user_data(updated_user)
+    
+    
+async def delete_user(id: str):
+    user = await user_collection.find_one({"_id": ObjectId(id)})
+    
+    if user:
+        await user_collection.delete_one({"_id": ObjectId(id)})
     
     
