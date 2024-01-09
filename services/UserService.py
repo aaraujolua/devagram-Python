@@ -22,6 +22,6 @@ async def register_user(user: UserCreateModel):
                 
     except Exception as error:
         return {
-            "msg": "Server error",
+            "msg": "Internal server error",
             "status": 500
         }

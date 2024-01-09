@@ -6,9 +6,15 @@ router = APIRouter()
 
 @router.post("/", response_description='Route to create a new user')
 async def route_create_new_user(user: UserCreateModel = Body(...)):
-    result = await register_user(user)
+    try:
+        result = await register_user(user)
     
-    if not result['status'] == 201:
-            raise HTTPException(status_code=result['status'], detail=result['msg'])
+        if not result['status'] == 201:
+                raise HTTPException(status_code=result['status'], detail=result['msg'])
+        
+        return result
     
-    return result
+    except Exception as error:
+        return {
+            "msg": "Internal server error"
+        }
