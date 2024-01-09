@@ -3,7 +3,7 @@ from repositories.UserRepository import create_user, find_user_by_email, list_us
 
 async def register_user(user: UserCreateModel):
     try:
-        user_found = await  find_user_by_email(user.email)
+        user_found = await find_user_by_email(user.email)
         
         if user_found:
             return {

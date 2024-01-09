@@ -34,3 +34,16 @@ class UserCreateModel(BaseModel):
                     "icon": "lua.jpg"
             }
         }
+        
+
+class UserLoginModel(BaseModel):
+    email: EmailStr = Field(...)  
+    password: str = Field (...)
+    
+    class Config:
+        extra_schema = {
+            "user": {
+                    "email": "f.araujoluana@gmail.com",
+                    "password": "123lua",
+            }
+        }

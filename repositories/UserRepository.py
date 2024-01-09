@@ -2,7 +2,7 @@ from models.UserModel import UserCreateModel
 from decouple import config
 import motor.motor_asyncio
 from bson import ObjectId
-from services.AuthService import encrypt_password
+from utils.AuthUtil import encrypt_password
 
 MONGODB_URL = config("MONGODB_URL")
 

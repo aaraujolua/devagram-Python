@@ -10,7 +10,7 @@ async def route_create_new_user(user: UserCreateModel = Body(...)):
         result = await register_user(user)
     
         if not result['status'] == 201:
-                raise HTTPException(status_code=result['status'], detail=result['msg'])
+            raise HTTPException(status_code=result['status'], detail=result['msg'])
         
         return result
     
