@@ -2,6 +2,7 @@ from models.UserModel import UserCreateModel
 from decouple import config
 import motor.motor_asyncio
 from bson import ObjectId
+from services.AuthService import encrypt_password
 
 MONGODB_URL = config("MONGODB_URL")
 
@@ -21,7 +22,9 @@ def show_user_data(user):
     }
 
 
-async def create_user(user: UserCreateModel) -> dict: 
+async def create_user(user: UserCreateModel) -> dict:
+    user.password = encrypt_password(user.password)
+     
     created_user = await user_collection.insert_one(user.__dict__)
     
     new_user = await user_collection.find_one({"_id": created_user.inserted_id})
