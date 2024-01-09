@@ -1,4 +1,4 @@
-from models.UserModel import UserModel
+from models.UserModel import UserCreateModel
 from decouple import config
 import motor.motor_asyncio
 from bson import ObjectId
@@ -21,7 +21,7 @@ def show_user_data(user):
     }
 
 
-async def create_user(user: UserModel) -> dict: 
+async def create_user(user: UserCreateModel) -> dict: 
     created_user = await user_collection.insert_one(user.__dict__)
     
     new_user = await user_collection.find_one({"_id": created_user.inserted_id})
@@ -54,5 +54,4 @@ async def delete_user(id: str):
     
     if user:
         await user_collection.delete_one({"_id": ObjectId(id)})
-    
     
