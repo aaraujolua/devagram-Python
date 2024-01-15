@@ -12,4 +12,6 @@ async def login(user: UserLoginModel = Body(...)):
     if not result['status'] == 200:
         raise HTTPException(status_code=result['status'], detail=result['msg'])
     
+    del result['data'] ['password']
+    
     return result
