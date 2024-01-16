@@ -1,5 +1,34 @@
+import jwt
+import time
+from decouple import config
 from utils.AuthUtil import verify_password
 from models.UserModel import UserLoginModel
+
+JWT_SECRET = config('JWT_SECRET')
+
+def generate_token_jwt(user_id: str) -> str:
+    payload = {
+        "user_id": user_id,
+        "expires": time.time() + 600
+    }
+    
+    token = jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+    
+    return token
+
+
+def decode_token_jwt(token: str):
+    try:
+        decoded_token = jwt.decode(token, JWT_SECRET, algorithms="HS256")
+        
+        if decoded_token["expires"] >= time.time():
+            return decoded_token
+        
+        else:
+            return None
+    
+    except Exception as error:
+            return None
 
 
 async def login_service(user: UserLoginModel):
