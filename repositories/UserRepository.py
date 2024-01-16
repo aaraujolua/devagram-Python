@@ -36,6 +36,13 @@ async def list_users():
     return user_collection.find()
     
     
+async def find_user(id: str):
+    user = await user_collection.find_one({"_id": ObjectId(id)})
+    
+    if user:
+        return show_user_data(user)
+
+    
 async def find_user_by_email(email: str) -> dict:
     user = await user_collection.find_one({"email": email})
     
