@@ -8,7 +8,7 @@ from services.AuthService import decode_token_jwt
 router = APIRouter()
 
 @router.post("/", response_description='Route to create a new user')
-async def route_create_new_user(file: UploadFile, user: UserCreateModel = Body(...)):
+async def route_create_new_user(file: UploadFile, user: UserCreateModel = Depends(UserCreateModel)):
     try:
         print(file)
         result = await register_user(user)
@@ -19,7 +19,7 @@ async def route_create_new_user(file: UploadFile, user: UserCreateModel = Body(.
         return result
     
     except Exception as error:
-        raise HTTPException(status_code=500, detail='Internal server error')
+        raise error
         
 
 @router.get("/me", response_description='Route to search info from the current user', dependencies=[Depends(verify_token)])

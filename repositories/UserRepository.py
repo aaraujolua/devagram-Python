@@ -18,7 +18,7 @@ def show_user_data(user):
         "name": user['name'],
         "email": user['email'] ,
         "password": user['password'],
-        "icon": user['icon'],
+        "icon": user['icon'] if "icon" in user else ""
     }
 
 
