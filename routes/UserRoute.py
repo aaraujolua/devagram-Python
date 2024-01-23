@@ -45,4 +45,4 @@ async def search_current_user_info(Authorization: str = Header(default='')):
         return result
         
     except Exception as error:
-        raise HTTPException(status_code=500, detail='Internal server error')
+        raise error

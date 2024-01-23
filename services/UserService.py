@@ -18,14 +18,12 @@ async def register_user(user: UserCreateModel, file_location):
             new_user = await create_user(user)
             
             try:
-                icon_url = awsProvider.upload_file_s3(f'photos-profile/{new_user["id"]}.jpg', file_location)
-                
-                new_user = await update_user(new_user["id"], {"icon": icon_url})
-                
-                print(new_user)
+                icon_url = awsProvider.upload_file_s3(f'profile-photos/{new_user["id"]}.jpg', file_location)
                 
             except Exception as error:
                 print(error)
+            
+            new_user = await update_user(new_user["id"], {"icon": icon_url})
             
             return {
                 "msg": "User sucessfully registered!",

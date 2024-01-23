@@ -56,9 +56,7 @@ async def update_user(id: str, user_data: dict):
     if user:
         updated_user = await user_collection.update_one({"_id": ObjectId(id)}, {"$set"})
         
-        found_user = await user_collection.find_one({
-            {"_id": ObjectId(id)}
-        })
+        found_user = await user_collection.find_one({"_id": ObjectId(id) })
 
         return {"msg": "User sucessfully updated!"}, show_user_data(found_user)
     
