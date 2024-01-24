@@ -16,7 +16,7 @@ class AWSProvider:
             
             url = s3_client.generate_presigned_url('get_object', ExpiresIn=0, Params={'Bucket': bucket, 'Key': path_to_save})
             
-            return (str).split('?')[0]
+            return str(url).split("?")[0]
             
         except ClientError as error:
             return False

@@ -3,8 +3,11 @@ import time
 from decouple import config
 from utils.AuthUtil import verify_password
 from models.UserModel import UserLoginModel
+from repositories.UserRepository import UserRepository
 
 JWT_SECRET = config('JWT_SECRET')
+
+userRepository = UserRepository()
 
 def generate_token_jwt(user_id: str) -> str:
     payload = {
@@ -32,8 +35,7 @@ def decode_token_jwt(token: str):
 
 
 async def login_service(user: UserLoginModel):
-    from repositories.UserRepository import find_user_by_email
-    user_found = await find_user_by_email(user.email)
+    user_found = await userRepository.find_user_by_email(user.email)
 
     if not user_found:
         return {
