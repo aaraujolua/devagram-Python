@@ -5322,3 +5322,10 @@ venv/Lib/site-packages/urllib3/util/url.py
 venv/Lib/site-packages/urllib3/util/wait.py
 venv/Scripts/__pycache__/jp.cpython-38.pyc
 venv/Scripts/jp.py
+utils/__pycache__/ConverterUtil.cpython-38.pyc
+services/__pycache__/UserService.cpython-38.pyc
+services/__pycache__/AuthService.cpython-38.pyc
+routes/__pycache__/UserRoute.cpython-38.pyc
+repositories/__pycache__/UserRepository.cpython-38.pyc
+providers/__pycache__/AWSProvider.cpython-38.pyc
+models/__pycache__/UserModel.cpython-38.pyc
