@@ -3,39 +3,41 @@ from models.PostModel import PostCreateModel
 from datetime import datetime
 import os
 from middlewares.JWTMiddleware import verify_token
+from services.AuthService import decode_token_jwt
+from services.UserService import UserService
+from services.PostService import PostService
 
 
 router = APIRouter()
 
-@router.post("/", response_description='Route to create a new post')
-async def route_create_post(file: UploadFile, user: PostCreateModel = Depends(PostCreateModel)):
+userService = UserService()
+
+postService = PostService()
+
+@router.post("/", response_description='Route to create a new post',  dependencies=[Depends(verify_token)])
+async def route_create_post(Authorization: str = Header(default=''), post: PostCreateModel = Depends(PostCreateModel)):
     try:
-        file_location = f'files/photo-{datetime.now().strftime("%H%M%S")}.jpg'
         
-        with open(file_location,'wb+') as files:
-            files.write(file.file.read())
+        token = Authorization.split(' ')[1]
         
-        #result = await register_user(user, file_location)
+        payload = decode_token_jwt(token)
+        
+        user_result = await userService.find_current_user(payload["user_id"])
+        
+        current_user = user_result["data"]
+        
+        result = await postService.make_post(post, current_user["id"])
     
-        os.remove(file_location)
-    
+        if not result["status"] == 201:
+            raise HTTPException(status_code=result["status"], detail=result["msg"])
+        
+        return result 
+        
     except Exception as error:
         raise error
         
 @router.get("/", response_description="Route to list the posts.", dependencies=[Depends(verify_token)])
 async def list_posts(Authorization: str = Header(default='')):
-    try:
-        
-        return {
-            "test": "OK"
-        }
-        
-    except Exception as error:
-        raise error
-
-
-@router.get("/me", response_description="Route to list the current user's posts.", dependencies=[Depends(verify_token)])
-async def search_current_user_posts(Authorization: str = Header(default='')):
     try:
         
         return {

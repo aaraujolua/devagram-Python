@@ -3,6 +3,8 @@ import motor.motor_asyncio
 from bson import ObjectId
 from models.PostModel import PostCreateModel
 from utils.ConverterUtil import ConverterUtil
+from datetime import datetime
+from typing import List
 
 MONGODB_URL = config("MONGODB_URL")
 
@@ -17,13 +19,32 @@ converterUtil = ConverterUtil()
 
 class PostRepository:
     
-    async def create_post(self, post: PostCreateModel) -> dict:
-        created_user = await post_collection.insert_one(post.__dict__)
+    async def create_post(self, post: PostCreateModel, user_id) -> PostCreateModel:
+        post_dict = {
+            "user_id": ObjectId(user_id),
+            "legend": post.legend,
+            "likes": 0,
+            "comments": [],
+            "date": datetime.now()
+        }
         
-        new_post = await post_collection.find_one({"_id": created_user.inserted_id})
+        created_post = await post_collection.insert_one(post_dict)
+        
+        new_post = await post_collection.find_one({"_id": created_post.inserted_id})
         
         return converterUtil.post_converter(new_post)
-
+    
+    
+    async def update_post(self, id: str, post_data: dict):
+        post = await post_collection.find_one({"_id": ObjectId(id)})
+        
+        if post:
+            await post_collection.update_one({"_id": ObjectId(id)}, {"$set": post_data})
+            
+            updated_post = await post_collection.find_one({"_id": ObjectId(id)})
+            
+            return converterUtil.post_converter(updated_post)
+        
 
     async def list_posts(self):
         return post_collection.find()

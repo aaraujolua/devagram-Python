@@ -2,6 +2,7 @@ from models.UserModel import UserCreateModel, UserUpdateModel
 from providers.AWSProvider import AWSProvider
 from repositories.UserRepository import UserRepository
 from datetime import datetime
+import os
 
 
 awsProvider = AWSProvider()
@@ -82,6 +83,8 @@ class UserService:
                         files.write(user_update.icon.file.read())
                     
                     icon_url = awsProvider.upload_file_s3(f'profile-photos/{id}.jpg', file_location)
+                    
+                    os.remove(file_location)
                     
                 except Exception as error:
                     print(error)

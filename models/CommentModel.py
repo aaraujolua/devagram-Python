@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
-from models.UserModel import UserModel
 
 
 class CommentModel(BaseModel):
-    user: UserModel = Field(...)
+    user_id: str = Field(...)
     comment: str = Field(...)
