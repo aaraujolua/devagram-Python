@@ -35,7 +35,8 @@ async def route_create_post(Authorization: str = Header(default=''), post: PostC
         
     except Exception as error:
         raise error
-        
+
+
 @router.get("/", response_description="Route to list the posts.", dependencies=[Depends(verify_token)])
 async def list_posts(Authorization: str = Header(default='')):
     try:
