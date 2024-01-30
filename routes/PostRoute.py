@@ -38,12 +38,14 @@ async def route_create_post(Authorization: str = Header(default=''), post: PostC
 
 
 @router.get("/", response_description="Route to list the posts.", dependencies=[Depends(verify_token)])
-async def list_posts(Authorization: str = Header(default='')):
+async def list_posts():
     try:
+        result = await postService.list_posts()
         
-        return {
-            "test": "OK"
-        }
+        if not result["status"] == 200:
+            raise HTTPException(status_code=result["status"], detail=result["msg"]) 
+        
+        return result
         
     except Exception as error:
         raise error

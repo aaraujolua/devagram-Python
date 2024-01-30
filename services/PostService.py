@@ -41,7 +41,27 @@ class PostService:
         except Exception as error:
             print(error),
             return {
-		        "msg": "Erro interno no servidor",
+		        "msg": "Internal server error",
+		        "data": str(error),
+		        "status": 500
+		    }
+            
+    
+    async def list_posts(self, ):
+        try:
+            posts = await postRepository.list_posts()
+            
+            return {
+                "msg": "Listed posts:",
+                "data": posts,
+                "status": 200
+            }
+            
+            
+        except Exception as error:
+            print(error),
+            return {
+		        "msg": "Internal server error",
 		        "data": str(error),
 		        "status": 500
 		    }

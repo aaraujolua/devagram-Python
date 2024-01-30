@@ -18,4 +18,5 @@ class ConverterUtil:
             "date": post["date"] if "date" in post else "",
             "likes": post["likes"] if "likes" in post else "",
             "comments": post["comments"] if "comments" in post else "",
+            "user": self.user_converter(post["user"][0]) if "user" in post and len(post["user"]) > 0 else ""
         }

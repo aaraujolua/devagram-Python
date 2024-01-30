@@ -47,7 +47,21 @@ class PostRepository:
         
 
     async def list_posts(self):
-        return post_collection.find()
+        found_posts = post_collection.aggregate([{
+            "$lookup": {
+                "from": "user", 
+                "localField": "user_id",
+                "foreignField": "_id",
+                "as": "user"
+            }
+        }])
+        
+        posts = []
+        
+        async for post in found_posts:
+            posts.append(converterUtil.post_converter(post))
+            
+        return posts
         
         
     async def find_post(self, id: str):
