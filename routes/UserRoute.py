@@ -33,7 +33,7 @@ async def route_create_new_user(file: UploadFile, user: UserCreateModel = Depend
         raise error
         
 
-@router.get("/", response_description='Route to list all users', dependencies=[Depends(verify_token)])
+@router.get("/list", response_description='Route to list all users', dependencies=[Depends(verify_token)])
 async def list_users():
     try:
         result = await userService.list_users()
