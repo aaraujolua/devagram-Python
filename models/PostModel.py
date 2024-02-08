@@ -14,7 +14,7 @@ class PostModel(BaseModel):
     photo: str = Field(...)
     legend: str = Field(...)
     date: str = Field(...)
-    likes: int = Field(...)
+    likes: List = Field(...)
     comments: List = Field(...)
 
     class Config:
@@ -25,7 +25,7 @@ class PostModel(BaseModel):
                         "photo": "string",
                         "legend": "string",
                         "date": "date",
-                        "likes": "int",
+                        "likes": "List[likes]",
                         "comments": "List[comments]"
                 }
             }

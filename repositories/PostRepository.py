@@ -1,7 +1,7 @@
 from decouple import config
 import motor.motor_asyncio
 from bson import ObjectId
-from models.PostModel import PostCreateModel
+from models.PostModel import PostCreateModel, PostModel
 from utils.ConverterUtil import ConverterUtil
 from datetime import datetime
 from typing import List
@@ -23,7 +23,7 @@ class PostRepository:
         post_dict = {
             "user_id": ObjectId(user_id),
             "legend": post.legend,
-            "likes": 0,
+            "likes": [],
             "comments": [],
             "date": datetime.now()
         }
@@ -62,9 +62,34 @@ class PostRepository:
             posts.append(converterUtil.post_converter(post))
             
         return posts
+    
+    
+    async def list_user_posts(self, user_id) -> List[PostModel]:
+        found_posts =  post_collection.aggregate([
+            {
+                "$match": {
+                    "user_id": ObjectId(user_id)
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "user",
+                    "localField": "user_id",
+                    "foreignField": "_id",
+                    "as": "user"
+                }
+            }
+        ])
+
+        posts = []
+        
+        async for post in found_posts:
+            posts.append(converterUtil.post_converter(post))
+            
+        return posts
         
         
-    async def find_post(self, id: str):
+    async def find_post(self, id: str) -> PostCreateModel:
         post = await post_collection.find_one({"_id": ObjectId(id)})
         
         if post:

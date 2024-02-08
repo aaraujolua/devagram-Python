@@ -16,7 +16,7 @@ class ConverterUtil:
             "photo": post["photo"] if "photo" in post else "",
             "legend": post["legend"] if "legend" in post else "",
             "date": post["date"] if "date" in post else "",
-            "likes": post["likes"] if "likes" in post else "",
-            "comments": post["comments"] if "comments" in post else "",
+            "likes": [str(l) for l in post["likes"]] if "likes" in post else "",
+            "comments": [str(c) for c in post["comments"]] if "comments" in post else "",
             "user": self.user_converter(post["user"][0]) if "user" in post and len(post["user"]) > 0 else ""
         }

@@ -20,7 +20,15 @@ class UserRepository:
     async def create_user(self, user: UserCreateModel) -> dict:
         user.password = encrypt_password(user.password)
         
-        created_user = await user_collection.insert_one(user.__dict__)
+        user_dict = {
+            "name": user.name,
+            "email": user.email,
+            "password": user.password,
+            "followers": [],
+            "following": []
+        }
+        
+        created_user = await user_collection.insert_one(user_dict)
         
         new_user = await user_collection.find_one({"_id": created_user.inserted_id})
         
