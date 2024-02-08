@@ -15,9 +15,9 @@ class UserService:
 
     async def register_user(self, user: UserCreateModel, file_location):
         try:
-            user_found = await userRepository.find_user_by_email(user.email)
+            found_user = await userRepository.find_user_by_email(user.email)
             
-            if user_found:
+            if found_user:
                 return {
                     "msg": f"E-mail '{user.email}' alredy has been registered.",
                     "status": 400
@@ -46,14 +46,39 @@ class UserService:
                 "status": 500
             }
             
+            
+    async def list_users(self):
+        try:
+            found_users = await userRepository.list_users()
+            
+            for user in found_users:
+                user["total_followers"] = len(user["followers"])
+                user["total_following"] = len(user["following"])
+            
+            return {
+                "msg": "Listed users:",
+                "data": found_users,
+                "status": 200
+            }
+            
+        except Exception as error:
+            return {
+                "msg": "Internal server error",
+                "status": 500
+            }
+    
+    
     async def find_current_user(self, id: str):
         try:
-            user_found = await userRepository.find_user(id)
+            found_user = await userRepository.find_user(id)
             
-            if user_found:
+            found_user["total_followers"] = len(found_user["followers"])
+            found_user["total_following"] = len(found_user["following"])
+            
+            if found_user:
                 return {
                     "msg": f"User found successfully!",
-                    "data": user_found,
+                    "data": found_user,
                     "status": 200
                 }
                 

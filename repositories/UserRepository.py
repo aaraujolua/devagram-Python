@@ -36,7 +36,14 @@ class UserRepository:
         
         
     async def list_users(self):
-        return user_collection.find()
+        found_users = user_collection.find()
+        
+        users = []
+        
+        async for user in found_users:
+            users.append(converterUtil.user_converter(user))
+            
+        return users
         
         
     async def find_user(self, id: str):

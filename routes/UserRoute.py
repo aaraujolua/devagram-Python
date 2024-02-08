@@ -33,6 +33,20 @@ async def route_create_new_user(file: UploadFile, user: UserCreateModel = Depend
         raise error
         
 
+@router.get("/", response_description='Route to list all users', dependencies=[Depends(verify_token)])
+async def list_users():
+    try:
+        result = await userService.list_users()
+        
+        if not result['status'] == 200:
+            raise HTTPException(status_code=result['status'], detail=result['msg'])
+        
+        return result
+        
+    except Exception as error:
+        raise error
+    
+
 @router.get("/me", response_description='Route to search info from the current user', dependencies=[Depends(verify_token)])
 async def search_current_user_info(Authorization: str = Header(default='')):
     try:
@@ -49,7 +63,7 @@ async def search_current_user_info(Authorization: str = Header(default='')):
         
     except Exception as error:
         raise error
-    
+
 
 @router.put("/me", response_description='Route to update info from the current user', dependencies=[Depends(verify_token)])
 async def update_current_user_info(Authorization: str = Header(default=''), user_update: UserUpdateModel = Depends(UserUpdateModel)):
