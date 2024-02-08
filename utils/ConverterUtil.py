@@ -5,7 +5,9 @@ class ConverterUtil:
             "name": user["name"],
             "email": user["email"] ,
             "password": user["password"],
-            "icon": user["icon"] if "icon" in user else ""
+            "icon": user["icon"] if "icon" in user else "",
+            "followers": [str(l) for l in user["followers"]] if "followers" in user else "",
+            "following": [str(l) for l in user["following"]] if "following" in user else ""   
         }
 
 

@@ -1,6 +1,7 @@
 from models.UserModel import UserCreateModel, UserUpdateModel
 from providers.AWSProvider import AWSProvider
 from repositories.UserRepository import UserRepository
+from bson import ObjectId
 from datetime import datetime
 import os
 
@@ -107,3 +108,43 @@ class UserService:
         
         except Exception as error:
             print(error)
+            
+            
+    async def follow_unfollow(self, current_user_id, user_id):
+        try:
+            found_user = await userRepository.find_user(user_id)
+            current_user = await userRepository.find_user(current_user_id)
+
+            if not found_user:
+                return {
+                    "msg": "User not found",
+                    "status": 404
+                }
+
+            if current_user_id in found_user["followers"] and user_id in current_user["following"]:
+                found_user["followers"].remove(current_user_id)
+                current_user["following"].remove(user_id)
+
+                action_msg = "You unfollowed this user."
+            else:
+                found_user["followers"].append(ObjectId(current_user_id))
+                current_user["following"].append(ObjectId(user_id))
+                
+                action_msg = "Now you are following this user!"
+
+
+            await userRepository.update_user(found_user["id"], {"followers": found_user["followers"]})
+            await userRepository.update_user(current_user["id"], {"following": current_user["following"]})
+
+            return {
+                "msg": action_msg,
+                "status": 200
+            }
+
+        except Exception as error:
+            print(error)
+            return {
+                "msg": "Internal server error",
+                "data": str(error),
+                "status": 500
+            }

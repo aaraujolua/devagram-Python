@@ -67,3 +67,21 @@ async def update_current_user_info(Authorization: str = Header(default=''), user
         
     except Exception as error:
         raise error
+    
+    
+@router.put('/follow/{user_id}', response_description="Route to like/unlike a post.", dependencies=[Depends(verify_token)])
+async def follow_unfollow_userr(user_id: str, Authorization: str = Header(default="")):
+    token = Authorization.split(' ')[1]
+    
+    payload = decode_token_jwt(token)
+        
+    user_result = await userService.find_current_user(payload["user_id"])
+        
+    current_user = user_result["data"]
+        
+    result = await userService.follow_unfollow(current_user["id"], user_id)
+    
+    if not result["status"] == 200:
+        raise HTTPException(status_code=result["status"], detail=result["msg"])
+
+    return result
