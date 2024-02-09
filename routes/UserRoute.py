@@ -63,6 +63,20 @@ async def search_current_user_info(Authorization: str = Header(default='')):
         
     except Exception as error:
         raise error
+    
+    
+@router.get("/{user_id}", response_description='Route to search info from the current user', dependencies=[Depends(verify_token)])
+async def search_current_user_info(user_id: str):
+    try:
+        result = await userService.find_current_user(user_id)
+        
+        if not result['status'] == 200:
+            raise HTTPException(status_code=result['status'], detail=result['msg'])
+        
+        return result
+        
+    except Exception as error:
+        raise error
 
 
 @router.put("/me", response_description='Route to update info from the current user', dependencies=[Depends(verify_token)])
