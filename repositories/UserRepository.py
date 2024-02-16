@@ -35,8 +35,8 @@ class UserRepository:
         return converterUtil.user_converter(new_user)
         
         
-    async def list_users(self):
-        found_users = user_collection.find()
+    async def list_users(self, name):
+        found_users = user_collection.find({"name": {"$regex": name, '$ options': 'i'}})
         
         users = []
         

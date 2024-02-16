@@ -1,6 +1,7 @@
 from models.UserModel import UserCreateModel, UserUpdateModel
 from providers.AWSProvider import AWSProvider
 from repositories.UserRepository import UserRepository
+from repositories.PostRepository import PostRepository
 from bson import ObjectId
 from datetime import datetime
 import os
@@ -9,6 +10,7 @@ import os
 awsProvider = AWSProvider()
 
 userRepository = UserRepository()
+postRepository = PostRepository()
 
 
 class UserService:
@@ -47,9 +49,9 @@ class UserService:
             }
             
             
-    async def list_users(self):
+    async def list_users(self, name):
         try:
-            found_users = await userRepository.list_users()
+            found_users = await userRepository.list_users(name)
             
             for user in found_users:
                 user["total_followers"] = len(user["followers"])
@@ -71,9 +73,12 @@ class UserService:
     async def find_current_user(self, id: str):
         try:
             found_user = await userRepository.find_user(id)
+            found_posts = await postRepository.list_user_posts(id)
             
             found_user["total_followers"] = len(found_user["followers"])
             found_user["total_following"] = len(found_user["following"])
+            found_user["posts"] = found_posts
+            found_user["total_posts"] = len(found_posts)
             
             if found_user:
                 return {
