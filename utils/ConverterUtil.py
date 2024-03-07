@@ -19,6 +19,12 @@ class ConverterUtil:
             "legend": post["legend"] if "legend" in post else "",
             "date": post["date"] if "date" in post else "",
             "likes": [str(l) for l in post["likes"]] if "likes" in post else "",
-            "comments": [str(c) for c in post["comments"]] if "comments" in post else "",
-            "user": self.user_converter(post["user"][0]) if "user" in post and len(post["user"]) > 0 else ""
+            "comments": [
+                {
+                    "comment": c["comment"],
+                    "comment_id": str(c["comment_id"]),
+                    "user_id": str(c["user_id"])
+                }
+                for c in post["comments"]] if "comments" in post else "",
+                "user": self.user_converter(post["user"][0]) if "user" in post and len(post["user"]) > 0 else ""
         }

@@ -1,6 +1,7 @@
 from providers.AWSProvider import AWSProvider
 from repositories.PostRepository import PostRepository
 from models.PostModel import PostCreateModel
+from dtos.ResponseDTO import ResponseDTO
 from bson import ObjectId
 from datetime import datetime
 import os
@@ -31,21 +32,11 @@ class PostService:
                     
             except Exception as error:
                 print(error)
-
-            return {
-                "msg": "Post created successfully!",
-                "data": new_post,
-                "status": 201
-            }
-
+                
+            return ResponseDTO("Post created successfully", new_post, 201)
 
         except Exception as error:
-            print(error),
-            return {
-		        "msg": "Internal server error",
-		        "data": str(error),
-		        "status": 500
-		    }
+            return ResponseDTO("Internal server error", str(error), 500)
     
     
     async def list_posts(self):
@@ -56,21 +47,11 @@ class PostService:
                 p["total_likes"] = len(p["likes"])
                 p["total_comments"] = len(p["comments"])
             
-            return {
-                "msg": "Listed posts:",
-                "data": posts,
-                "status": 200
-            }
-            
+            return ResponseDTO("Listed posts:", posts, 200)
             
         except Exception as error:
-            print(error),
-            return {
-		        "msg": "Internal server error",
-		        "data": str(error),
-		        "status": 500
-		    }
-            
+            return ResponseDTO("Internal server error", str(error), 500)
+
             
     async def list_user_posts(self, user_id):
         try:
@@ -80,31 +61,18 @@ class PostService:
                 p["total_likes"] = len(p["likes"])
                 p["total_comments"] = len(p["comments"])
             
-            return {
-                "msg": "Listed posts:",
-                "data": posts,
-                "status": 200
-            }
-            
+            return ResponseDTO("Listed posts:", posts, 200)
             
         except Exception as error:
-            print(error),
-            return {
-		        "msg": "Internal server error",
-		        "data": str(error),
-		        "status": 500
-		    }
-            
+            return ResponseDTO("Internal server error", str(error), 500)
+
             
     async def like_unlike(self, post_id, user_id):
         try:
             found_post = await postRepository.find_post(post_id)
             
             if not found_post:
-                return {
-                    "msg": "Post not found",
-                    "status": 404
-                }
+                return ResponseDTO("Post not found", str(error), 404)
         
             if found_post["likes"].count(user_id) > 0:
                 found_post["likes"].remove(user_id)
@@ -115,20 +83,10 @@ class PostService:
             
             updated_post = await postRepository.update_post(found_post["id"], {"likes": found_post["likes"]})
             
-            return {
-                "msg": action_msg,
-                "data": updated_post,
-                "status": 200
-            }
+            return ResponseDTO(action_msg, updated_post, 200)
                 
-
         except Exception as error:
-            print(error),
-            return {
-		        "msg": "Internal server error",
-		        "data": str(error),
-		        "status": 500
-		    }
+            return ResponseDTO("Internal server error", str(error), 500)
     
     
     async def create_comment(self, post_id, user_id, comment):   
@@ -136,32 +94,58 @@ class PostService:
             found_post = await postRepository.find_post(post_id)
             
             if not found_post:
-                return {
-                    "msg": "Post not found",
-                    "status": 404
-                }
+                return ResponseDTO("Post not found", "", 404)
             
             found_post["comments"].append({
+                "comment_id": ObjectId(),
                 "user_id": ObjectId(user_id),
                 "comment": comment
             })
             
             updated_post = await postRepository.update_post(found_post["id"], {"comments": found_post["comments"]})
 
-            return {
-                "msg": "Post commented successfully!",
-                "data": updated_post,
-                "status": 200
-            }
+            return ResponseDTO("Post commented successfully!", updated_post, 200)
+            
+        except Exception as error:
+            return ResponseDTO("Internal server error", str(error), 500)
+            
+            
+    async def delete_comment(self, post_id, user_id, comment_id):   
+        try:
+            found_post = await postRepository.find_post(post_id)
+            
+            for comment in found_post["comments"]:
+                if comment["comment_id"] == comment_id:
+                    if not (comment["user_id"] == user_id or found_post["user_id"] == user_id):
+                        return ResponseDTO("Invalid Request", "", 401)
+                        
+                    found_post["comments"].remove(comment)
+            
+            updated_post = await postRepository.update_post(found_post["id"], {"comments": found_post["comments"]})
 
+            return ResponseDTO("Comment successfully removed!", updated_post, 200)
+            
+        except Exception as error:
+            return ResponseDTO("Internal server error", str(error), 500)
+            
+            
+    async def update_comment(self, post_id, user_id, comment_id, comment_model):   
+        try:
+            found_post = await postRepository.find_post(post_id)
+            
+            for comment in found_post["comments"]:
+                if comment["comment_id"] == comment_id:
+                    if not comment["user_id"] == user_id:
+                        return ResponseDTO("Invalid Request", "", 401)
+                        
+                    comment["comment"] = comment_model
+            
+            updated_post = await postRepository.update_post(found_post["id"], {"comments": found_post["comments"]})
+            
+            return ResponseDTO("Comment updated successfully!", updated_post, 200)
 
         except Exception as error:
-            print(error),
-            return {
-		        "msg": "Internal server error",
-		        "data": str(error),
-		        "status": 500
-		    }
+            return ResponseDTO("Internal server error", str(error), 500)
             
             
     async def delete_post(self, post_id, user_id):   
@@ -169,33 +153,15 @@ class PostService:
             found_post = await postRepository.find_post(post_id)
             
             if not found_post:
-                return {
-                    "msg": "Post not found",
-                    "status": 404
-                }
-            
-            if not found_post["user_id"] == user_id:
-            
+                return ResponseDTO("Post not found", "", 404)
 
-                return {
-                    "msg": "Unable action",
-                    "status": 401
-                }
-                
+            if not found_post["user_id"] == user_id:
+                return ResponseDTO("Unable action", "", 401)
+
             await postRepository.delete_post(post_id)
             
-            return {
-                "msg": "Post deleted successfully!",
-                "status": 200
-            }
-
+            return ResponseDTO("Post deleted successfully!", "", 200)
 
         except Exception as error:
-            print(error),
-            return {
-		        "msg": "Internal server error",
-		        "data": str(error),
-		        "status": 500
-		    }
-  
+            return ResponseDTO("Internal server error", str(error), 500)
             
