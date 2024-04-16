@@ -1,14 +1,14 @@
-from providers.AWSProvider import AWSProvider
-from repositories.PostRepository import PostRepository
-from models.PostModel import PostCreateModel
-from dtos.ResponseDTO import ResponseDTO
+import os
 from bson import ObjectId
 from datetime import datetime
-import os
+
+from dtos.ResponseDTO import ResponseDTO
+from models.PostModel import PostCreateModel
+from providers.AWSProvider import AWSProvider
+from repositories.PostRepository import PostRepository
 
 
 awsProvider = AWSProvider()
-
 postRepository = PostRepository()
 
 
@@ -24,9 +24,9 @@ class PostService:
                 with open(file_location,'wb+') as filess:
                     filess.write(post.photo.file.read())
                     
-                photo_url = awsProvider.upload_file_s3(f'post-photos/{created_post["id"]}.jpg', file_location)
+                photo_url = awsProvider.upload_file_s3(f'post-photos/{created_post.id}.jpg', file_location)
                 
-                new_post = await postRepository.update_post(created_post["id"], {"photo": photo_url})
+                new_post = await postRepository.update_post(created_post.id, {"photo": photo_url})
                 
                 os.remove(file_location)
                     
@@ -44,8 +44,8 @@ class PostService:
             posts = await postRepository.list_posts()
             
             for p in posts:
-                p["total_likes"] = len(p["likes"])
-                p["total_comments"] = len(p["comments"])
+                p.total_likes = len(p.likes)
+                p.total_comments = len(p.comments)
             
             return ResponseDTO("Listed posts:", posts, 200)
             
@@ -58,8 +58,8 @@ class PostService:
             posts = await postRepository.list_user_posts(user_id)
             
             for p in posts:
-                p["total_likes"] = len(p["likes"])
-                p["total_comments"] = len(p["comments"])
+                p.total_likes = len(p.likes)
+                p.total_comments = len(p.comments)
             
             return ResponseDTO("Listed posts:", posts, 200)
             
@@ -74,14 +74,14 @@ class PostService:
             if not found_post:
                 return ResponseDTO("Post not found", str(error), 404)
         
-            if found_post["likes"].count(user_id) > 0:
-                found_post["likes"].remove(user_id)
+            if found_post.likes.count(user_id) > 0:
+                found_post.likes.remove(user_id)
                 action_msg = "Post unliked successfully!"
             else:
-                found_post["likes"].append(ObjectId(user_id))
+                found_post.likes.append(ObjectId(user_id))
                 action_msg = "Post liked successfully!"
             
-            updated_post = await postRepository.update_post(found_post["id"], {"likes": found_post["likes"]})
+            updated_post = await postRepository.update_post(found_post.id, {"likes": found_post.likes})
             
             return ResponseDTO(action_msg, updated_post, 200)
                 
@@ -96,13 +96,13 @@ class PostService:
             if not found_post:
                 return ResponseDTO("Post not found", "", 404)
             
-            found_post["comments"].append({
+            found_post.comments.append({
                 "comment_id": ObjectId(),
                 "user_id": ObjectId(user_id),
                 "comment": comment
             })
             
-            updated_post = await postRepository.update_post(found_post["id"], {"comments": found_post["comments"]})
+            updated_post = await postRepository.update_post(found_post.id, {"comments": found_post.comments})
 
             return ResponseDTO("Post commented successfully!", updated_post, 200)
             
@@ -114,14 +114,14 @@ class PostService:
         try:
             found_post = await postRepository.find_post(post_id)
             
-            for comment in found_post["comments"]:
+            for comment in found_post.comments:
                 if comment["comment_id"] == comment_id:
-                    if not (comment["user_id"] == user_id or found_post["user_id"] == user_id):
+                    if not (comment["user_id"] == user_id or found_post.user_id == user_id):
                         return ResponseDTO("Invalid Request", "", 401)
                         
-                    found_post["comments"].remove(comment)
+                    found_post.comments.remove(comment)
             
-            updated_post = await postRepository.update_post(found_post["id"], {"comments": found_post["comments"]})
+            updated_post = await postRepository.update_post(found_post.id, {"comments": found_post.comments})
 
             return ResponseDTO("Comment successfully removed!", updated_post, 200)
             
@@ -133,14 +133,14 @@ class PostService:
         try:
             found_post = await postRepository.find_post(post_id)
             
-            for comment in found_post["comments"]:
+            for comment in found_post.comments:
                 if comment["comment_id"] == comment_id:
                     if not comment["user_id"] == user_id:
                         return ResponseDTO("Invalid Request", "", 401)
                         
                     comment["comment"] = comment_model
             
-            updated_post = await postRepository.update_post(found_post["id"], {"comments": found_post["comments"]})
+            updated_post = await postRepository.update_post(found_post.id, {"comments": found_post.comments})
             
             return ResponseDTO("Comment updated successfully!", updated_post, 200)
 
@@ -155,7 +155,7 @@ class PostService:
             if not found_post:
                 return ResponseDTO("Post not found", "", 404)
 
-            if not found_post["user_id"] == user_id:
+            if not found_post.user_id == user_id:
                 return ResponseDTO("Unable action", "", 401)
 
             await postRepository.delete_post(post_id)

@@ -1,9 +1,12 @@
-from models.UserModel import UserCreateModel
-from decouple import config
-import motor.motor_asyncio
+from typing import List
 from bson import ObjectId
-from utils.AuthUtil import encrypt_password
+import motor.motor_asyncio
+from decouple import config
+
+from utils.AuthUtil import AuthUtil
 from utils.ConverterUtil import ConverterUtil
+from models.UserModel import UserCreateModel, UserModel, UserExportModel
+
 
 MONGODB_URL = config("MONGODB_URL")
 
@@ -14,11 +17,13 @@ database = client.devagram
 user_collection = database.get_collection("user")
 
 converterUtil = ConverterUtil()
+authUtil = AuthUtil()
+
 
 class UserRepository:
 
-    async def create_user(self, user: UserCreateModel) -> dict:
-        user.password = encrypt_password(user.password)
+    async def create_user(self, user: UserCreateModel) -> UserModel:
+        user.password = authUtil.encrypt_password(user.password)
         
         user_dict = {
             "name": user.name,
@@ -35,25 +40,25 @@ class UserRepository:
         return converterUtil.user_converter(new_user)
         
         
-    async def list_users(self, name):
-        found_users = user_collection.find({"name": {"$regex": name, '$ options': 'i'}})
+    async def list_users(self, name) -> List[UserExportModel]:
+        found_users = user_collection.find({"name": {"$regex": name, '$options': 'i'}})
         
         users = []
         
         async for user in found_users:
-            users.append(converterUtil.user_converter(user))
+            users.append(converterUtil.user_export_converter(user))
             
         return users
         
         
-    async def find_user(self, id: str):
+    async def find_user(self, id: str) -> UserModel:
         user = await user_collection.find_one({"_id": ObjectId(id)})
         
         if user:
             return converterUtil.user_converter(user)
 
         
-    async def find_user_by_email(self, email: str) -> dict:
+    async def find_user_by_email(self, email: str) -> UserModel:
         user = await user_collection.find_one({"email": email})
         
         if user:
@@ -62,7 +67,7 @@ class UserRepository:
 
     async def update_user(self, id: str, user_data: dict):
         if "password" in user_data:
-            user_data["password"] = encrypt_password(user_data['password'])
+            user_data['password'] = authUtil.encrypt_password(user_data['password'])
         
         user = await user_collection.find_one({"_id": ObjectId(id)})
         

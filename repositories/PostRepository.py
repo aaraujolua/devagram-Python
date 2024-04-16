@@ -1,10 +1,11 @@
-from decouple import config
-import motor.motor_asyncio
-from bson import ObjectId
-from models.PostModel import PostCreateModel, PostModel
-from utils.ConverterUtil import ConverterUtil
-from datetime import datetime
 from typing import List
+from bson import ObjectId
+import motor.motor_asyncio
+from decouple import config
+from datetime import datetime
+
+from utils.ConverterUtil import ConverterUtil
+from models.PostModel import PostCreateModel, PostModel
 
 MONGODB_URL = config("MONGODB_URL")
 
@@ -19,7 +20,7 @@ converterUtil = ConverterUtil()
 
 class PostRepository:
     
-    async def create_post(self, post: PostCreateModel, user_id) -> PostCreateModel:
+    async def create_post(self, post: PostCreateModel, user_id) -> PostModel:
         post_dict = {
             "user_id": ObjectId(user_id),
             "legend": post.legend,
@@ -35,7 +36,7 @@ class PostRepository:
         return converterUtil.post_converter(new_post)
     
     
-    async def update_post(self, id: str, post_data: dict):
+    async def update_post(self, id: str, post_data: dict) -> PostModel:
         post = await post_collection.find_one({"_id": ObjectId(id)})
         
         if post:
@@ -46,7 +47,7 @@ class PostRepository:
             return converterUtil.post_converter(updated_post)
         
 
-    async def list_posts(self):
+    async def list_posts(self) -> List[PostModel]:
         found_posts = post_collection.aggregate([{
             "$lookup": {
                 "from": "user", 
@@ -89,7 +90,7 @@ class PostRepository:
         return posts
         
         
-    async def find_post(self, id: str) -> PostCreateModel:
+    async def find_post(self, id: str) -> PostModel:
         post = await post_collection.find_one({"_id": ObjectId(id)})
         
         if post:
